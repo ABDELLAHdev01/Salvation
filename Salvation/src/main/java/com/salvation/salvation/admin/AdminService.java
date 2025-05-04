@@ -1,12 +1,13 @@
 package com.salvation.salvation.admin;
 
-import com.salvation.salvation.model.User;
+import com.salvation.salvation.dto.UserDto;
 import com.salvation.salvation.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class AdminService {
@@ -18,22 +19,29 @@ public class AdminService {
         this.userRepository = userRepository;
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserDto> getAllUsers() {
+        return userRepository.findAll().stream()
+                .map(UserDto::fromUser)
+                .toList();
     }
 
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> {
-
-            logger.info("User not found with id: {}", id);
-            return new IllegalArgumentException("User not found with id: " + id);
+    public UserDto getUserById(Long id) {
+        return userRepository.findById(id).map(user -> {
+            logger.warn("User found with id: {}", id);
+            return UserDto.fromUser(user);
+        }).orElseThrow(() -> {
+            logger.warn("User not found with id: {}", id);
+            return new NoSuchElementException("User not found with id: " + id);
         });
     }
 
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() -> {
-            logger.info("User not found with username: {}", username);
-            return new IllegalArgumentException("User not found with username: " + username);
+    public UserDto getUserByUsername(String username) {
+        return userRepository.findByUsername(username).map(user -> {
+            logger.warn("User found with username: {}", username);
+            return UserDto.fromUser(user);
+        }).orElseThrow(() -> {
+            logger.warn("User not found with username: {}", username);
+            return new NoSuchElementException("User not found with username: " + username);
         });
     }
 }
