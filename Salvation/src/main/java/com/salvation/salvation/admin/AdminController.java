@@ -1,6 +1,7 @@
 package com.salvation.salvation.admin;
 
 import com.salvation.salvation.model.User;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,17 +19,17 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public List<User> getAllUsers() {
-        return adminService.getAllUsers();
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(adminService.getAllUsers());
     }
 
     @GetMapping("/user/{id}")
-    public User getUserById(@PathVariable Long id) {
-        return adminService.getUserById(id);
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(adminService.getUserById(id));
     }
 
     @GetMapping("/user/username/{username}")
-    public User getUserByUsername(@PathVariable String username) {
-        return adminService.getUserByUsername(username);
+    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+        return ResponseEntity.ok(adminService.getUserByUsername(username));
     }
 }
