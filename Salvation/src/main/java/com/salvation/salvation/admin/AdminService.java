@@ -5,6 +5,7 @@ import com.salvation.salvation.communs.helpers.Helpers;
 import com.salvation.salvation.dto.UserDto;
 import com.salvation.salvation.model.User;
 import com.salvation.salvation.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -62,36 +63,47 @@ public class AdminService {
         logger.info("User with {} {} has been {}", isId ? "id" : "username", identifier, action);
     }
 
+    @Transactional
     public void banUserById(Long id) {
         User user = getUserOrThrow(userRepository.findByIdAndDeletedFalse(id), Helpers.stringify(id), true);
         updateUserEnabledStatus(user, false, Helpers.stringify(id), true);
     }
 
+    @Transactional
     public void banUserByUsername(String username) {
         User user = getUserOrThrow(userRepository.findByUsernameAndDeletedFalse(username), username, false);
         updateUserEnabledStatus(user, false, username, false);
     }
 
+    @Transactional
     public void unbanUserById(Long id) {
         User user = getUserOrThrow(userRepository.findByIdAndDeletedFalse(id), Helpers.stringify(id), true);
         updateUserEnabledStatus(user, true, Helpers.stringify(id), true);
     }
 
+    @Transactional
     public void unbanUserByUsername(String username) {
         User user = getUserOrThrow(userRepository.findByUsernameAndDeletedFalse(username), username, false);
         updateUserEnabledStatus(user, true, username, false);
     }
 
+    private void softDeleteUser(User user, String identifier, boolean isId) {
+        user.setDeleted(true);
+        userRepository.save(user);
+        logger.info("User with {} {} has been deleted", isId ? "id" : "username", identifier);
+    }
+
+    @Transactional
     public void deleteUserById(Long id) {
         User user = getUserOrThrow(userRepository.findByIdAndDeletedFalse(id), Helpers.stringify(id), true);
-        user.setDeleted(true);
-        userRepository.save(user);
+        softDeleteUser(user, Helpers.stringify(id), true);
         logger.info("User with id {} has been deleted", id);
     }
+
+    @Transactional
     public void deleteUserByUsername(String username) {
         User user = getUserOrThrow(userRepository.findByUsernameAndDeletedFalse(username), username, false);
-        user.setDeleted(true);
-        userRepository.save(user);
+        softDeleteUser(user, username, false);
         logger.info("User with username {} has been deleted", username);
     }
 }
