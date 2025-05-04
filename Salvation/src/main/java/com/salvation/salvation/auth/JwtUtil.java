@@ -2,22 +2,48 @@ package com.salvation.salvation.auth;
 
 import com.salvation.salvation.model.User;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 @Component
 public class JwtUtil {
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
+    private static final String TOKEN_TYPE_CLAIM = "tokenType";
+    private static final String ACCESS_TOKEN_TYPE = "access";
+    private static final String REFRESH_TOKEN_TYPE = "refresh";
 
-    private static final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256); // Secure key generation
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 15; // 15 minutes
-    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 days
+    @Value("${jwt.secret-key}")
+    private String secretKeyString;
+
+    @Value("${jwt.access-token-expiration}")
+    private long accessTokenExpiration;
+
+    @Value("${jwt.refresh-token-expiration}")
+    private long refreshTokenExpiration;
+
+    private SecretKey secretKey;
+    private JwtParser jwtParser;
+
+    @PostConstruct
+    public void init() {
+        secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKeyString));
+        jwtParser = Jwts.parserBuilder().setSigningKey(secretKey).build();
+        logger.info("JwtUtil initialized with secret key and parser");
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -33,20 +59,21 @@ public class JwtUtil {
     }
 
     public String generateToken(User user) {
-        return Jwts.builder()
-                .setSubject(user.getUsername())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION))
-                .signWith(SECRET_KEY)
-                .compact();
+        return generateToken(new HashMap<>(), user, accessTokenExpiration, ACCESS_TOKEN_TYPE);
     }
 
     public String generateRefreshToken(User user) {
+        return generateToken(new HashMap<>(), user, refreshTokenExpiration, REFRESH_TOKEN_TYPE);
+    }
+
+    private String generateToken(Map<String, Object> extraClaims, User user, long expiration, String tokenType) {
+        extraClaims.put(TOKEN_TYPE_CLAIM, tokenType);
         return Jwts.builder()
+                .setClaims(extraClaims)
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION))
-                .signWith(SECRET_KEY)
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(secretKey)
                 .compact();
     }
 
@@ -57,12 +84,10 @@ public class JwtUtil {
 
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(SECRET_KEY)
-                    .build()
-                    .parseClaimsJws(token);
+            jwtParser.parseClaimsJws(token);
             return true;
         } catch (Exception e) {
+            logger.debug("Invalid JWT token: {}", e.getMessage());
             return false;
         }
     }
@@ -72,10 +97,11 @@ public class JwtUtil {
     }
 
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(SECRET_KEY)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return jwtParser.parseClaimsJws(token).getBody();
+        } catch (Exception e) {
+            logger.error("Error extracting claims from token: {}", e.getMessage());
+            throw e;
+        }
     }
 }

@@ -25,7 +25,7 @@ class JwtAuthenticationFilterTest {
     private JwtUtil jwtUtil;
 
     @Mock
-    private CostumeUserDetailsService userDetailsService;
+    private CustomUserDetailsService userDetailsService;
 
     @Mock
     private HttpServletRequest request;

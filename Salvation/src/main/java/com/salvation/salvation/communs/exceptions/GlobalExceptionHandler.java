@@ -9,6 +9,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -115,6 +116,18 @@ public class GlobalExceptionHandler {
         errorSimpleResponse.setDetails(Arrays.asList(exception.getMessage().split(";")));
         errorSimpleResponse.setPath(request.getRequestURI());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorSimpleResponse);
+    }
+
+    @ExceptionHandler(LockedException.class)
+    public ResponseEntity<ErrorResponseSimpleFormat> handleLockedException(
+            LockedException exception, HttpServletRequest request) {
+        errorSimpleResponse.setMessage("User account is locked");
+        errorSimpleResponse.setTimestamp(LocalDateTime.now());
+        errorSimpleResponse.setDetails(Collections.singletonList(
+                "Your account has been locked for security reasons. Please contact support for assistance."
+        ));
+        errorSimpleResponse.setPath(request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorSimpleResponse);
     }
 
     @ExceptionHandler(Exception.class)
