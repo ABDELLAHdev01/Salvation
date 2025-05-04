@@ -1,5 +1,7 @@
 # 🧙‍♂️ Salvation - Online Fantasy RPG Browser Game
 
+![Alt Text](/assets_task_01jtes861rf5mrbgytty49w0nx_1746400519_img_0.webp)
+
 Welcome to **Salvation**, a browser-based fantasy role-playing game where players create their own characters, explore mystical worlds, battle enemies, and grow stronger through quests and strategy. Inspired by classic RPGs with a modern multiplayer twist.
 
 ---
