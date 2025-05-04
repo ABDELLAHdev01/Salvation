@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -31,5 +32,29 @@ public class AdminController {
     @GetMapping("/user/username/{username}")
     public ResponseEntity<UserDto> getUserByUsername(@PathVariable String username) {
         return ResponseEntity.ok(adminService.getUserByUsername(username));
+    }
+
+    @PutMapping("/ban/id/{id}")
+    public ResponseEntity<Void> banUserById(@PathVariable Long id) {
+        adminService.banUserById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/ban/username/{username}")
+    public ResponseEntity<Void> banUserByUsername(@PathVariable String username) {
+        adminService.banUserByUsername(username);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/unban/id/{id}")
+    public ResponseEntity<Void> unbanUserById(@PathVariable Long id) {
+        adminService.unbanUserById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/unban/username/{username}")
+    public ResponseEntity<Void> unbanUserByUsername(@PathVariable String username) {
+        adminService.unbanUserByUsername(username);
+        return ResponseEntity.noContent().build();
     }
 }
