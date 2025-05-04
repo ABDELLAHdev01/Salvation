@@ -1,4 +1,4 @@
-package com.salvation.salvation.DTO;
+package com.salvation.salvation.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
