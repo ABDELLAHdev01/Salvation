@@ -22,7 +22,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
         // Cache authorities to avoid recreating them on every call
         this.authorities = user.getRoles() == null ? Collections.emptySet() :
                 user.getRoles().stream()
-                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                        .map(role -> new SimpleGrantedAuthority(role.getName()))
                         .collect(Collectors.toUnmodifiableSet());
     }
 
@@ -61,8 +61,4 @@ public class CustomUserDetails implements UserDetails, Serializable {
         return user.isEnabled();
     }
 
-    // Get the underlying user entity
-    public User getUser() {
-        return user;
-    }
 }

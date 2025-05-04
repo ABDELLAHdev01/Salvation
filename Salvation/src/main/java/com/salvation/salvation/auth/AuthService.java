@@ -5,7 +5,9 @@ import com.salvation.salvation.dto.AuthenticationResponse;
 import com.salvation.salvation.dto.RegisterRequest;
 import com.salvation.salvation.communs.exceptions.InvalidRefreshTokenException;
 import com.salvation.salvation.communs.exceptions.UsernameAlreadyExistsException;
+import com.salvation.salvation.model.Role;
 import com.salvation.salvation.model.User;
+import com.salvation.salvation.repository.RoleRepository;
 import com.salvation.salvation.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Collections;
 
 @Service
 public class AuthService {
@@ -26,16 +29,18 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
+    private final RoleRepository roleRepository;
 
     public AuthService(
             UserRepository userRepository,
             JwtUtil jwtUtil,
             AuthenticationManager authenticationManager,
-            PasswordEncoder passwordEncoder) {
+            PasswordEncoder passwordEncoder, RoleRepository roleRepository) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
+        this.roleRepository = roleRepository;
     }
 
     @Transactional
@@ -49,12 +54,19 @@ public class AuthService {
 
         String encodedPassword = passwordEncoder.encode(registerRequest.getPassword());
 
+        Role role = roleRepository.findByName("ROLE_USER")
+                .orElseGet(() -> {
+                    logger.info("ROLE_USER not found, creating a new one.");
+                    return roleRepository.save(Role.builder().name("ROLE_USER").build());
+                });
+
         User user = User.builder()
                 .username(registerRequest.getUsername())
                 .password(encodedPassword)
                 .enabled(true)
                 .accountNonLocked(true)
                 .accountNonExpired(true)
+                .roles(Collections.singleton(role))
                 .credentialsNonExpired(true)
                 .build();
 
