@@ -1,6 +1,7 @@
 package com.salvation.salvation.admin;
 
 import com.salvation.salvation.communs.exceptions.ResourceNotFoundException;
+import com.salvation.salvation.communs.helpers.Helpers;
 import com.salvation.salvation.dto.UserDto;
 import com.salvation.salvation.model.User;
 import com.salvation.salvation.repository.UserRepository;
@@ -47,31 +48,37 @@ public class AdminService {
         });
     }
 
-    private void setUserEnabledStatus(Optional<User> optionalUser, boolean enabled, String identifier, boolean isId) {
-        optionalUser.ifPresentOrElse(user -> {
-            user.setEnabled(enabled);
-            userRepository.save(user);
-            String action = enabled ? "unbanned" : "banned";
-            logger.info("User with {} {} has been {}", isId ? "id" : "username", identifier, action);
-        }, () -> {
+    private User getUserOrThrow(Optional<User> optionalUser, String identifier, boolean isId) {
+        return optionalUser.orElseThrow(() -> {
             logger.warn("User not found with {}: {}", isId ? "id" : "username", identifier);
-            throw new ResourceNotFoundException("User not found with " + (isId ? "id" : "username") + ": " + identifier);
+            return new ResourceNotFoundException("User not found with " + (isId ? "id" : "username") + ": " + identifier);
         });
     }
 
+    private void updateUserEnabledStatus(User user, boolean enabled, String identifier, boolean isId) {
+        user.setEnabled(enabled);
+        userRepository.save(user);
+        String action = enabled ? "unbanned" : "banned";
+        logger.info("User with {} {} has been {}", isId ? "id" : "username", identifier, action);
+    }
+
     public void banUserById(Long id) {
-        setUserEnabledStatus(userRepository.findById(id), false, String.valueOf(id), true);
+        User user = getUserOrThrow(userRepository.findById(id), Helpers.stringify(id), true);
+        updateUserEnabledStatus(user, false, Helpers.stringify(id), true);
     }
 
     public void banUserByUsername(String username) {
-        setUserEnabledStatus(userRepository.findByUsername(username), false, username, false);
+        User user = getUserOrThrow(userRepository.findByUsername(username), username, false);
+        updateUserEnabledStatus(user, false, username, false);
     }
 
     public void unbanUserById(Long id) {
-        setUserEnabledStatus(userRepository.findById(id), true, String.valueOf(id), true);
+        User user = getUserOrThrow(userRepository.findById(id), Helpers.stringify(id), true);
+        updateUserEnabledStatus(user, true, Helpers.stringify(id), true);
     }
 
     public void unbanUserByUsername(String username) {
-        setUserEnabledStatus(userRepository.findByUsername(username), true, username, false);
+        User user = getUserOrThrow(userRepository.findByUsername(username), username, false);
+        updateUserEnabledStatus(user, true, username, false);
     }
 }
