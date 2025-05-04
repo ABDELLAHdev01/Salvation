@@ -142,4 +142,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorSimpleResponse);
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponseSimpleFormat> handleResourceNotFoundException(
+            ResourceNotFoundException exception, HttpServletRequest request) {
+
+        errorSimpleResponse.setTimestamp(LocalDateTime.now());
+        errorSimpleResponse.setMessage("Resource Not Found");
+        errorSimpleResponse.setDetails(Arrays.asList(exception.getMessage().split(";")));
+        errorSimpleResponse.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorSimpleResponse);
+    }
+
 }

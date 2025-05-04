@@ -1,5 +1,6 @@
 package com.salvation.salvation.admin;
 
+import com.salvation.salvation.communs.exceptions.ResourceNotFoundException;
 import com.salvation.salvation.dto.UserDto;
 import com.salvation.salvation.repository.UserRepository;
 import org.slf4j.Logger;
@@ -7,7 +8,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class AdminService {
@@ -27,21 +27,21 @@ public class AdminService {
 
     public UserDto getUserById(Long id) {
         return userRepository.findById(id).map(user -> {
-            logger.warn("User found with id: {}", id);
+            logger.info("User found with id: {}", id);
             return UserDto.fromUser(user);
         }).orElseThrow(() -> {
             logger.warn("User not found with id: {}", id);
-            return new NoSuchElementException("User not found with id: " + id);
+            return new ResourceNotFoundException("User not found with id: " + id);
         });
     }
 
     public UserDto getUserByUsername(String username) {
         return userRepository.findByUsername(username).map(user -> {
-            logger.warn("User found with username: {}", username);
+            logger.info("User found with username: {}", username);
             return UserDto.fromUser(user);
         }).orElseThrow(() -> {
             logger.warn("User not found with username: {}", username);
-            return new NoSuchElementException("User not found with username: " + username);
+            return new ResourceNotFoundException("User not found with username: " + username);
         });
     }
 }
