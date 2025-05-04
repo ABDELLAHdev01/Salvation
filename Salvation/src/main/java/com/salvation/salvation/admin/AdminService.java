@@ -106,4 +106,19 @@ public class AdminService {
         softDeleteUser(user, username, false);
         logger.info("User with username {} has been deleted", username);
     }
+
+    @Transactional
+    public void unDeleteUserById(Long id) {
+        User user = getUserOrThrow(userRepository.findByIdAndDeletedTrue(id), Helpers.stringify(id), true);
+        user.setDeleted(false);
+        userRepository.save(user);
+        logger.info("User with id {} has been undeleted", id);
+    }
+    @Transactional
+    public void unDeleteUserByUsername(String username) {
+        User user = getUserOrThrow(userRepository.findByUsernameAndDeletedTrue(username), username, false);
+        user.setDeleted(false);
+        userRepository.save(user);
+        logger.info("User with username {} has been undeleted", username);
+    }
 }

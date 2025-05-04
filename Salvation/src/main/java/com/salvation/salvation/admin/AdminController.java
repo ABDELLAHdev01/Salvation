@@ -69,4 +69,15 @@ public class AdminController {
         adminService.deleteUserByUsername(username);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/undelete/id/{id}")
+    public ResponseEntity<Void> undeleteUserById(@PathVariable Long id) {
+        adminService.unDeleteUserById(id);
+        return ResponseEntity.noContent().build();
+    }
+    @PutMapping("/undelete/username/{username}")
+    public ResponseEntity<Void> undeleteUserByUsername(@PathVariable String username) {
+        adminService.unDeleteUserByUsername(username);
+        return ResponseEntity.noContent().build();
+    }
 }
