@@ -1,8 +1,9 @@
 package com.salvation.salvation.auth;
 
-import com.salvation.salvation.DTO.AuthenticateRequest;
-import com.salvation.salvation.DTO.AuthenticationResponse;
-import com.salvation.salvation.DTO.RegisterRequest;
+import com.salvation.salvation.dto.AuthenticateRequest;
+import com.salvation.salvation.dto.AuthenticationResponse;
+import com.salvation.salvation.dto.RegisterRequest;
+import com.salvation.salvation.communs.exceptions.InvalidRefreshTokenException;
 import com.salvation.salvation.communs.exceptions.UsernameAlreadyExistsException;
 import com.salvation.salvation.model.User;
 import com.salvation.salvation.repository.UserRepository;
@@ -81,7 +82,7 @@ public class AuthService {
                     .refreshToken(refreshToken) // Reuse the same refresh token
                     .build();
         } else {
-            throw new RuntimeException("Invalid refresh token");
+            throw new InvalidRefreshTokenException("Invalid refresh token");
         }
     }
 

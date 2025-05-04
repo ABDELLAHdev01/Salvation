@@ -107,6 +107,15 @@ public class GlobalExceptionHandler {
         errorSimpleResponse.setPath(request.getRequestURI());
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorSimpleResponse);
     }
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<ErrorResponseSimpleFormat> handleInvalidRefreshTokenException(
+            InvalidRefreshTokenException exception, HttpServletRequest request) {
+        errorSimpleResponse.setMessage("Invalid refresh token");
+        errorSimpleResponse.setTimestamp(LocalDateTime.now());
+        errorSimpleResponse.setDetails(Arrays.asList(exception.getMessage().split(";")));
+        errorSimpleResponse.setPath(request.getRequestURI());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorSimpleResponse);
+    }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponseSimpleFormat> handleGenericException(
