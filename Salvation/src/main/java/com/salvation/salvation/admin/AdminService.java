@@ -15,6 +15,12 @@ import java.util.Optional;
 
 @Service
 public class AdminService {
+    /**
+     * Service class for managing admin operations on users.
+     * It provides methods for retrieving, banning, unbanning, deleting,
+     * and undeleting users based on their ID or username.
+     */
+
     private static final Logger logger = LoggerFactory.getLogger(AdminService.class);
 
     private final UserRepository userRepository;
