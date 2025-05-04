@@ -57,4 +57,16 @@ public class AdminController {
         adminService.unbanUserByUsername(username);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping("/delete/id/{id}")
+    public ResponseEntity<Void> deleteUserById(@PathVariable Long id) {
+        adminService.deleteUserById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/delete/username/{username}")
+    public ResponseEntity<Void> deleteUserByUsername(@PathVariable String username) {
+        adminService.deleteUserByUsername(username);
+        return ResponseEntity.noContent().build();
+    }
 }

@@ -53,4 +53,7 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<Role> roles = new HashSet<>();
+
+    @Column(nullable = false)
+    private boolean deleted = false;
 }

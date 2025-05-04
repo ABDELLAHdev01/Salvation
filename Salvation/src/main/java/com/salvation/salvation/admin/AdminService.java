@@ -23,13 +23,13 @@ public class AdminService {
     }
 
     public List<UserDto> getAllUsers() {
-        return userRepository.findAll().stream()
+        return userRepository.findAllByDeletedFalse().stream()
                 .map(UserDto::fromUser)
                 .toList();
     }
 
     public UserDto getUserById(Long id) {
-        return userRepository.findById(id).map(user -> {
+        return userRepository.findByIdAndDeletedFalse(id).map(user -> {
             logger.info("User found with id: {}", id);
             return UserDto.fromUser(user);
         }).orElseThrow(() -> {
@@ -39,7 +39,7 @@ public class AdminService {
     }
 
     public UserDto getUserByUsername(String username) {
-        return userRepository.findByUsername(username).map(user -> {
+        return userRepository.findByUsernameAndDeletedFalse(username).map(user -> {
             logger.info("User found with username: {}", username);
             return UserDto.fromUser(user);
         }).orElseThrow(() -> {
@@ -63,22 +63,35 @@ public class AdminService {
     }
 
     public void banUserById(Long id) {
-        User user = getUserOrThrow(userRepository.findById(id), Helpers.stringify(id), true);
+        User user = getUserOrThrow(userRepository.findByIdAndDeletedFalse(id), Helpers.stringify(id), true);
         updateUserEnabledStatus(user, false, Helpers.stringify(id), true);
     }
 
     public void banUserByUsername(String username) {
-        User user = getUserOrThrow(userRepository.findByUsername(username), username, false);
+        User user = getUserOrThrow(userRepository.findByUsernameAndDeletedFalse(username), username, false);
         updateUserEnabledStatus(user, false, username, false);
     }
 
     public void unbanUserById(Long id) {
-        User user = getUserOrThrow(userRepository.findById(id), Helpers.stringify(id), true);
+        User user = getUserOrThrow(userRepository.findByIdAndDeletedFalse(id), Helpers.stringify(id), true);
         updateUserEnabledStatus(user, true, Helpers.stringify(id), true);
     }
 
     public void unbanUserByUsername(String username) {
-        User user = getUserOrThrow(userRepository.findByUsername(username), username, false);
+        User user = getUserOrThrow(userRepository.findByUsernameAndDeletedFalse(username), username, false);
         updateUserEnabledStatus(user, true, username, false);
+    }
+
+    public void deleteUserById(Long id) {
+        User user = getUserOrThrow(userRepository.findByIdAndDeletedFalse(id), Helpers.stringify(id), true);
+        user.setDeleted(true);
+        userRepository.save(user);
+        logger.info("User with id {} has been deleted", id);
+    }
+    public void deleteUserByUsername(String username) {
+        User user = getUserOrThrow(userRepository.findByUsernameAndDeletedFalse(username), username, false);
+        user.setDeleted(true);
+        userRepository.save(user);
+        logger.info("User with username {} has been deleted", username);
     }
 }
