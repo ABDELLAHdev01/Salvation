@@ -17,6 +17,10 @@ public class UserDto {
     private CharacterResponse character;
 
     public static UserDto fromUser(User user) {
-        return new UserDto(user.getUsername() , user.getRoles() , CharacterResponse.fromCharacter(user.getCharacter()));
+        if (user == null) {
+            throw new IllegalArgumentException("User is null");
+        }
+        return new UserDto(user.getUsername(), user.getRoles(),
+                user.getCharacter() != null ? CharacterResponse.fromCharacter(user.getCharacter()) : null);
     }
 }

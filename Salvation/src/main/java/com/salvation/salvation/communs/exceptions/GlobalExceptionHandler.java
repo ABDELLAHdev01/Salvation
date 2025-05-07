@@ -154,4 +154,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorSimpleResponse);
     }
 
+    @ExceptionHandler(UserAlreadyHasCharacter.class)
+    public ResponseEntity<ErrorResponseSimpleFormat> handleUserAlreadyHasCharacter(
+            UserAlreadyHasCharacter exception, HttpServletRequest request) {
+
+        errorSimpleResponse.setTimestamp(LocalDateTime.now());
+        errorSimpleResponse.setMessage("User Already Has Character");
+        errorSimpleResponse.setDetails(Arrays.asList(exception.getMessage().split(";")));
+        errorSimpleResponse.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorSimpleResponse);
+    }
+
 }

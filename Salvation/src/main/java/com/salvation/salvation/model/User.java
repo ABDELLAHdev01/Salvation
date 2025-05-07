@@ -59,5 +59,5 @@ public class User {
 
     @OneToOne
     @JoinColumn(name = "character_id")
-    private Character character ;
+    private Character character;
 }
