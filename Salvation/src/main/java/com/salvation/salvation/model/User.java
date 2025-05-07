@@ -56,4 +56,8 @@ public class User {
 
     @Column(nullable = false)
     private boolean deleted = false;
+
+    @OneToOne
+    @JoinColumn(name = "character_id")
+    private Character character ;
 }

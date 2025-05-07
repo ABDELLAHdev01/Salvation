@@ -5,13 +5,13 @@ import com.salvation.salvation.dto.AuthenticationResponse;
 import com.salvation.salvation.dto.RegisterRequest;
 import com.salvation.salvation.communs.exceptions.InvalidRefreshTokenException;
 import com.salvation.salvation.communs.exceptions.UsernameAlreadyExistsException;
+import com.salvation.salvation.dto.UserDto;
 import com.salvation.salvation.model.Role;
 import com.salvation.salvation.model.User;
 import com.salvation.salvation.repository.RoleRepository;
 import com.salvation.salvation.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -120,13 +120,6 @@ public class AuthService {
         }
     }
 
-    @Cacheable(value = "userByUsername", key = "#username")
-    @Transactional(readOnly = true)
-    public User getUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-    }
-
     private AuthenticationResponse generateAuthResponse(User user) {
         String accessToken = jwtUtil.generateToken(user);
         String refreshToken = jwtUtil.generateRefreshToken(user);
@@ -134,6 +127,7 @@ public class AuthService {
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .user(UserDto.fromUser(user))
                 .build();
     }
 }
